@@ -1,0 +1,31 @@
+# Python cache and compiled code
+**/__*/
+**/*.pyc
+
+# MATLAB compiled code and datafiles
+**/*.asv
+**/*.mat
+
+# Figures
+**/figures*
+
+# Windows
+**/*.db
+**/*.ini
+
+**/*.log
+**/*.tmp
+
+# MASSIVE logs
+**/*.out
+**/*.err
+
+# Videos and gifs
+**/*.avi
+**/*.gif
+
+# Data
+**/*.tar.gz
+
+# Pyphi environment
+bin/pyphi_environment/
