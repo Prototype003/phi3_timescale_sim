@@ -12,7 +12,7 @@ https://doi.org/10.1016/j.jneumeth.2019.108443
 %% Settings
 
 model_type = 'unidir_no_inst';
-nSamples = 18000;
+nSamples = 200000;
 nRuns = 10;
 
 %% Get model parameters

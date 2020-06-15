@@ -8,7 +8,7 @@ Summary figures
 
 %% Load
 
-load('results/split/unidir_no_inst_nSamples200000_nRuns10_medianSplit_binAverage/joined.mat');
+load('results/unidir_no_inst_nSamples18000_nRuns10_phithree_nChannels2_globalTPM1_binOffset1.mat');
 
 %% Plot phi as function of tau
 
