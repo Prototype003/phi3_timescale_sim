@@ -22,7 +22,7 @@ nSamples = 200000;
 nRuns = 10;
 
 %% Model parameters
-model_type = ''; % name of the model
+model_type = 'NLbidirNoInstOrder1Thresh1'; % name of the model
 
 model_params = struct();
 
@@ -37,8 +37,8 @@ model_params.A =[...
 
 % Nonlinear connection matrix (nodes x nodes x time-lag)
 model_params.B = [...
-    0 0.35;...
-    0.35, 0];
+    0 0.7;...
+    0.7, 0];
 
 % Instantaneous noise covariance (nodes x nodes)
 % To generate noise from covariance:
@@ -49,9 +49,10 @@ model_params.Covariance = [...
     0 0.5];
 
 % Nonlinear function name ('NL' = 'nonlinear')
-model_params.NL_func = 'thresh';
+model_params.NL_func = 'threshSpike';
 model_params.NL_params = struct();
-model_params.NL_params.thresh = [1; 1]; % (nodes x 1)
+model_params.NL_params.thresh = [0.5; 0.5]; % (nodes x 1)
+model_params.NL_params.spike = [1; 1]; % (nodes x 1)
 
 %% Simulate data
 % See MATLAB functions simulate(varm) and filter(varm) for reference
@@ -95,3 +96,7 @@ end
 
 %% Save
 
+out_dir = 'sim_data/';
+out_file = [model_type '_nSamples' num2str(nSamples) '_nRuns' num2str(nRuns)];
+
+save([out_dir out_file], 'model_type', 'nSamples', 'model_params', 'data', 'data_E');
