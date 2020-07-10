@@ -7,13 +7,13 @@ Builds TPMs
 %% Settings
 
 % Number of samples to use per source state (at time t)
-samplesPerState = 500;
+samplesPerState = 200;
 
 % Binarise method
 binariseMethod = 'percSplit';
 
 % Binarise parameters
-threshs = (10:90);
+threshs = (10:2:90);
 binariseParams = struct();
 
 % Timescales
@@ -25,7 +25,7 @@ downMethod = 'binAverage';
 
 %% Setup
 
-prefix = 'NLbidirNoInstOrder1Thresh1_nSamples200000_nRuns10';
+prefix = 'NLbidirNoInstOrder1Thresh0_nSamples200000_nRuns10';
 
 % Source data
 source_dir = 'sim_data/';
@@ -42,6 +42,7 @@ out_dir = ['tpms/' prefix tpm_string '/'];
 
 %% Build TPMs with constant number of samples per source state
 
+thresh_values = zeros(length(threshs), size(data, 2), size(data, 4), length(taus));
 for thresh_c = 1 : length(threshs)
     thresh = threshs(thresh_c);
     disp(thresh);
@@ -74,7 +75,10 @@ for thresh_c = 1 : length(threshs)
             data_binarised = binarise_median(data_resampled);
             nValues = 2;
         elseif strcmp(binariseMethod, 'percSplit')
-            data_binarised = binarise_perc(data_resampled, binariseParams);
+            [data_binarised, thresh_values(thresh_c, :, run ,tau)] = binarise_perc(data_resampled, binariseParams);
+            nValues = 2;
+        elseif strcmp(binariseMethod, 'threshSplit')
+            data_binarised = binarise_threshValue(data_resampled, thresh);
             nValues = 2;
         end
         
@@ -96,4 +100,12 @@ end
 %% Save general parameters
 
 nRuns = size(data, 4);
-save([out_dir 'params.mat'], 'samplesPerState', 'binariseMethod', 'binariseParams', 'threshs', 'taus', 'downMethod', 'nRuns');
+save([out_dir 'params.mat'],...
+    'samplesPerState',...
+    'binariseMethod',...
+    'binariseParams',...
+    'threshs',...
+    'taus',...
+    'downMethod',...
+    'nRuns',...
+    'thresh_values');
