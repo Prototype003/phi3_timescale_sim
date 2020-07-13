@@ -12,7 +12,7 @@ function [binarised] = binarise_threshValue(data, params)
 %   binarised = matrix (time-samples x ...)
 
 % Binarised based on threshold value
-binarised = data > params.thresh;
+binarised = data >= params.thresh;
 
 end
 

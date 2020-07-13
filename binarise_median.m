@@ -11,6 +11,6 @@ function [binarised] = binarise_median(data)
 medians = repmat(median(data, 1), [size(data, 1) ones(1, length(size(data))-1)]);
 
 % Binarised based on median
-binarised = data > medians;
+binarised = data >= medians;
 
 end

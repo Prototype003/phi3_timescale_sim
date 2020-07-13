@@ -16,7 +16,7 @@ thresh_values = prctile(data, params.thresh, 1);
 threshs = repmat(thresh_values, [size(data, 1) ones(1, length(size(data))-1)]);
 
 % Binarised based on median
-binarised = data > threshs;
+binarised = data >= threshs;
 
 end
 
