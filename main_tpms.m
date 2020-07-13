@@ -11,6 +11,11 @@ max_samples = 1000;
 
 % Binarise method
 binariseMethod = 'medianSplit';
+binariseMethod = 'percSplit';
+
+% Binarise parameters
+binariseParams = struct();
+binariseParams.thresh = 68;
 
 % Timescales
 taus = (1:200);
@@ -21,6 +26,10 @@ downMethod = 'binAverage';
 %% Setup
 
 prefix = 'unidir_no_inst_nSamples200000_nRuns10';
+prefix = 'unidirNoInstOrder1_nSamples200000_nRuns10';
+prefix = 'disconnected_with_inst_nSamples200000_nRuns10';
+prefix = 'disconnectedNoInstOrder1_nSamples200000_nRuns10';
+prefix = 'bidirNoInstOrder1_nSamples200000_nRuns10';
 
 % Source data
 source_dir = 'sim_data/';
