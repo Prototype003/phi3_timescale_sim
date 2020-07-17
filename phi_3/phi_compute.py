@@ -103,11 +103,13 @@ for tpm_file in os.listdir(tpm_dir):
 	print(tpm_file)
 	
 	if tpm_file != "params.mat":
-		# Load TPM
-		loaded = load_mat(tpm_dir + tpm_file)
-		tpm = loaded['tpm']
-		state_counters = loaded['state_counters']
-		nValues = loaded['nValues'][0][0]
-		tpm_formatted = pyphi.convert.state_by_state2state_by_node(tpm) # assumes loaded TPMs are state-by-state
-		
-		phi_compute(tpm_formatted, state_counters, nValues, results_directory, tpm_file)
+		# Check if phi result already exists
+		if not os.path.isfile(results_directory+tpm_file):
+			# Load TPM
+			loaded = load_mat(tpm_dir + tpm_file)
+			tpm = loaded['tpm']
+			state_counters = loaded['state_counters']
+			nValues = loaded['nValues'][0][0]
+			tpm_formatted = pyphi.convert.state_by_state2state_by_node(tpm) # assumes loaded TPMs are state-by-state
+			
+			phi_compute(tpm_formatted, state_counters, nValues, results_directory, tpm_file)
