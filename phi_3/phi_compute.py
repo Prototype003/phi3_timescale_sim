@@ -1,6 +1,8 @@
 
 import os
 import sys
+import tarfile
+import multiprocessing as mp
 sys.path.append('../')
 import numpy as np
 import scipy.signal as sp_signal
@@ -9,7 +11,31 @@ import pyphi
 import itertools
 from fly_phi import *
 
-def phi_compute(tpm, state_counters, nValues, out_dir, out_file):
+def tar_compute(tpm_file, tpm_dir, tpm_type, results_directory, queue):
+	tpm_archive = tarfile.open(tpm_dir+tpm_type+'.tar', mode='r')
+	
+	# Extract files
+	tpm_archive.extract(tpm_file, path=tpm_dir)
+	
+	# Load TPM
+	loaded = load_mat(tpm_dir + tpm_file.name)
+	tpm = loaded['tpm']
+	state_counters = loaded['state_counters']
+	nValues = loaded['nValues'][0][0]
+	tpm_formatted = pyphi.convert.state_by_state2state_by_node(tpm) # assumes loaded TPMs are state-by-state
+	
+	# Compute phi
+	out_file = phi_compute(tpm_formatted, state_counters, nValues, results_directory, tpm_file.name, tpm_type)
+	
+	# Add output to queue
+	queue.put(out_file)
+	print(out_file)
+	
+	# Delete extracted file
+	os.remove(tpm_dir+tpm_file.name)
+
+
+def phi_compute(tpm, state_counters, nValues, out_dir, out_file, tpm_type):
 	# Assumes tpm is state-by-node
 	# Intputs:
 	#	tpm = state-by-node TPM
@@ -83,8 +109,35 @@ def phi_compute(tpm, state_counters, nValues, out_dir, out_file):
 	# Save
 	save_mat(out_dir+out_file, {'phi': phi})
 	print('saved ' + out_dir + out_file)
+	
+	return out_file
+	
+
+def tar_append(out_dir, queue):
+	# Open tar for appending
+	archive = tarfile.open(out_dir+'phis.tar', mode='a')
+	print('tar open')
+	
+	# Wait for other processes to finish, and append to tar
+	while 1:
+		out_file = queue.get()
+		print(out_file)
+		if out_file == 'finish': # Check if finished - if so, then exit
+			archive.close()
+			break
+		archive.add(out_dir+out_file)
+		print('added to tar:'+out_file)
+		
+		# Remove associated mat file
+		os.remove(out_dir+out_file)
+		print(out_dir+out_file)
+	
 
 # Setup ############################################################################
+
+# Remove PyPhi parallelisation (as we have our own parallelisation)
+pyphi.config.PARALLEL_CONCEPT_EVALUATION = False
+pyphi.config.PARALLEL_CUT_EVALUATION = False
 
 # Parameters for loading data and calculating
 tpm_type = sys.argv[1]
@@ -99,17 +152,48 @@ if not os.path.exists(results_directory):
 
 # Loop through TPMs ############################################################################
 
-for tpm_file in os.listdir(tpm_dir):
-	print(tpm_file)
+# Check for tar archive 
+if tarfile.is_tarfile(tpm_dir+tpm_type+'.tar'):
+	tpm_archive = tarfile.open(tpm_dir+tpm_type+'.tar', mode='r')
+	tpms = tpm_archive.getmembers()
 	
-	if tpm_file != "params.mat":
-		# Check if phi result already exists
-		if not os.path.isfile(results_directory+tpm_file):
-			# Load TPM
-			loaded = load_mat(tpm_dir + tpm_file)
-			tpm = loaded['tpm']
-			state_counters = loaded['state_counters']
-			nValues = loaded['nValues'][0][0]
-			tpm_formatted = pyphi.convert.state_by_state2state_by_node(tpm) # assumes loaded TPMs are state-by-state
-			
-			phi_compute(tpm_formatted, state_counters, nValues, results_directory, tpm_file)
+	# Create pool
+	manager = mp.Manager()
+	queue = manager.Queue()
+	pool = mp.Pool(mp.cpu_count())
+	
+	# Create process for appending to tar
+	writer = pool.apply_async(tar_append, (results_directory, queue))
+	
+	# Iterate through TPM files in the tar archive
+	jobs = []
+	for tpm_file in tpms:
+		job = pool.apply_async(tar_compute, (tpm_file, tpm_dir, tpm_type, results_directory, queue))
+		jobs.append(job)
+	
+	# Force wait until all jobs finish
+	for job in jobs:
+		job.get()
+	
+	queue.put('finish') # Signal to writer to finish up
+	
+	# Close pool
+	pool.close()
+	pool.join()
+	
+else:
+	# Iterate through separate individual TPM files
+	for tpm_file in os.listdir(tpm_dir):
+		print(tpm_file)
+		
+		if tpm_file != "params.mat":
+			# Check if phi result already exists
+			if not os.path.isfile(results_directory+tpm_file):
+				# Load TPM
+				loaded = load_mat(tpm_dir + tpm_file)
+				tpm = loaded['tpm']
+				state_counters = loaded['state_counters']
+				nValues = loaded['nValues'][0][0]
+				tpm_formatted = pyphi.convert.state_by_state2state_by_node(tpm) # assumes loaded TPMs are state-by-state
+				
+				phi_compute(tpm_formatted, state_counters, nValues, results_directory, tpm_file, tpm_type)
