@@ -40,8 +40,6 @@
 # SBATCH --reservation=reservation_name
 
 # Job script
-module load python/3.6.2
-source pyphi_environment/bin/activate
 module load matlab/r2019b
 matlab -nodisplay -nodesktop -r "main_tpms_thresh_data_stateCountMatch; exit"
 
