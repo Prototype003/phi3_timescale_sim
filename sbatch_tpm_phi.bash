@@ -21,7 +21,7 @@
 #SBATCH --mem-per-cpu=1000
 
 # Set your minimum acceptable walltime, format: day-hours:minutes:seconds
-#SBATCH --time=0-10:00:00
+#SBATCH --time=0-3:00:00
 # SBATCH --qos=shortq
 # SBATCH --partition=short,comp
 
