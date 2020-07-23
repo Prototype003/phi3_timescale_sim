@@ -18,10 +18,10 @@
 #SBATCH --cpus-per-task=14
 
 # Memory usage (MB)
-#SBATCH --mem-per-cpu=2000
+#SBATCH --mem-per-cpu=1000
 
 # Set your minimum acceptable walltime, format: day-hours:minutes:seconds
-#SBATCH --time=0-12:00:00
+#SBATCH --time=0-10:00:00
 # SBATCH --qos=shortq
 # SBATCH --partition=short,comp
 
@@ -41,11 +41,11 @@
 
 # Job script
 module load matlab/r2019b
-matlab -nodisplay -nodesktop -r "main_tpms_thresh_data_stateCountMatch; exit"
+time matlab -nodisplay -nodesktop -r "main_tpms_thresh_data_stateCountMatch; exit"
 
 module load python/3.6.2
 source pyphi_environment/bin/activate
 cd phi_3/
-python phi_compute.py split2250_bipolarRerefType1_lineNoiseRemoved_postPuffpreStim_threshSplit_binAverage_100perState
+time python phi_compute.py split2250_bipolarRerefType1_lineNoiseRemoved_postPuffpreStim_threshSplit_binAverage_100perState
 
 deactivate

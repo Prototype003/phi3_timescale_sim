@@ -25,7 +25,7 @@ def tar_compute(tpm_file, tpm_dir, tpm_type, results_directory, queue):
 	tpm_formatted = pyphi.convert.state_by_state2state_by_node(tpm) # assumes loaded TPMs are state-by-state
 	
 	# Compute phi
-	out_file = phi_compute(tpm_formatted, state_counters, nValues, results_directory, tpm_file.name, tpm_type)
+	out_file = phi_compute(tpm_formatted, state_counters, nValues, results_directory, tpm_file.name)
 	
 	# Add output to queue
 	queue.put(out_file)
@@ -35,7 +35,7 @@ def tar_compute(tpm_file, tpm_dir, tpm_type, results_directory, queue):
 	os.remove(tpm_dir+tpm_file.name)
 
 
-def phi_compute(tpm, state_counters, nValues, out_dir, out_file, tpm_type):
+def phi_compute(tpm, state_counters, nValues, out_dir, out_file):
 	# Assumes tpm is state-by-node
 	# Intputs:
 	#	tpm = state-by-node TPM
@@ -125,7 +125,7 @@ def tar_append(out_dir, queue):
 		if out_file == 'finish': # Check if finished - if so, then exit
 			archive.close()
 			break
-		archive.add(out_dir+out_file)
+		archive.add(out_dir+out_file, out_file)
 		print('added to tar:'+out_file)
 		
 		# Remove associated mat file
@@ -149,6 +149,7 @@ tpm_dir = "../tpms/" + tpm_type + "/"
 results_directory = "results/split/" + tpm_type + "/"
 if not os.path.exists(results_directory):
 	os.makedirs(results_directory)
+	
 
 # Loop through TPMs ############################################################################
 
@@ -156,6 +157,11 @@ if not os.path.exists(results_directory):
 if tarfile.is_tarfile(tpm_dir+tpm_type+'.tar'):
 	tpm_archive = tarfile.open(tpm_dir+tpm_type+'.tar', mode='r')
 	tpms = tpm_archive.getmembers()
+	
+	# Check for previously computed results
+	done_archive = tarfile.open(results_directory+'phis.tar', mode='a')
+	done_tpms = done_archive.getnames()
+	done_archive.close()
 	
 	# Create pool
 	manager = mp.Manager()
@@ -168,8 +174,10 @@ if tarfile.is_tarfile(tpm_dir+tpm_type+'.tar'):
 	# Iterate through TPM files in the tar archive
 	jobs = []
 	for tpm_file in tpms:
-		job = pool.apply_async(tar_compute, (tpm_file, tpm_dir, tpm_type, results_directory, queue))
-		jobs.append(job)
+		if tpm_file.name != "params.mat":
+			if not tpm_file.name in done_tpms:
+				job = pool.apply_async(tar_compute, (tpm_file, tpm_dir, tpm_type, results_directory, queue))
+				jobs.append(job)
 	
 	# Force wait until all jobs finish
 	for job in jobs:
