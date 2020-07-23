@@ -84,9 +84,8 @@ for fly = 1 : size(fly_data, 4)
     for condition = 1 : size(fly_data, 5)
         tic;
         for trial = 1 : size(fly_data, 3)
-            
+            disp(['f' num2str(fly) 'c' num2str(condition) 't' num2str(trial)]);
             for network_c = 1 : size(networks, 1)
-                disp(network_c);
                 network = networks(network_c, :);
                 net_data = data(:, network, trial, fly, condition);
                 
@@ -95,9 +94,6 @@ for fly = 1 : size(fly_data, 4)
                     '_condition' num2str(condition)...
                     '_trial' num2str(trial)...
                     '_network' num2str(network_c)];
-                if network_c == 11
-                    disp('here');
-                end
                 
                 for thresh_c = 1 : size(thresh_values, 1)
                     
@@ -180,28 +176,3 @@ save([out_dir 'params.mat'],...
     'downMethod',...
     'thresh_values',...
     'networks');
-
-%% Tar everything into one file
-disp('tarring');
-tic;
-tar([prefix tpm_string], '*.mat', out_dir);
-toc
-
-%% Remove individual files
-disp('removing individual files');
-tic;
-% Remove individual files
-rmdir(out_dir, 's');
-toc
-
-% Remake directory
-mkdir('tpms', [prefix tpm_string]);
-
-%% Move tar to output directory
-movefile([prefix tpm_string '.tar'], out_dir)
-
-%% Pre-extract params file
-extract_file = 'params.mat';
-command = ['tar --extract --file=' out_dir prefix tpm_string '.tar ' extract_file];
-system(command);
-movefile(extract_file, out_dir);
