@@ -14,7 +14,7 @@ tpm_type = 'unidirNoInstOrder1_nSamples200000_nRuns10_medianSplit_binAverage';
 %tpm_type = 'bidirNoInstOrder1_nSamples200000_nRuns10_medianSplit_binAverage';
 tpm_type = 'NLbidirNoInstOrder1Thresh-inf_nSamples200000_nRuns10_percSplit_binAverage';
 tpm_type = 'NLbidirNoInstOrder1Thresh1_nSamples200000_nRuns10_threshSplit_binAverage_200perState';
-%tpm_type = 'NLbidirNoInstOrder1Thresh0-7SpikeReset_nSamples200000_nRuns10_threshSplit_binAverage_200perState';
+tpm_type = 'NLbidirNoInstOrder1Thresh1SpikeReset_nSamples200000_nRuns10_threshSplit_binAverage_200perState';
 
 load(['results/split/' tpm_type '/joined.mat']);
 
