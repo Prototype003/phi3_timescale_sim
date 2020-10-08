@@ -48,6 +48,6 @@
 module load python/3.6.2
 source pyphi_environment/bin/activate
 cd phi_3/
-time python phi_compute.py split2250_bipolarRerefType1_lineNoiseRemoved_postPuffpreStim_threshSplit_binAverage_100perState
+time python phi_compute.py split2250_bipolarRerefType1_lineNoiseRemoved_postPuffpreStim_threshSplit_tau4_tauStep
 
 deactivate
