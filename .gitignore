@@ -28,5 +28,9 @@
 **/*.tar.gz
 **/*.tar
 
+# TPM folders
+!tpms/ # allow things at the top level in the directory
+tpms/* # ignore folders within the directory
+
 # Pyphi environment
 bin/pyphi_environment/
