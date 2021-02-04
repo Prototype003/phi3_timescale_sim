@@ -2,21 +2,16 @@
 
 %{
 Builds TPMs
+
+Binarises by computing power and clustering
 %}
 
 %% Settings
 
 nChannels = 2;
 
-% Number of samples to use per source state (at time t)
-samplesPerState = 100;
-
 % Binarise method
-binariseMethod = 'threshSplit'; % 'percSplit' = split by percentile; 'threshSplit' = split by value
-
-% Binarise parameters
-thresh_ps = (30:5:70);
-binariseParams = struct();
+binariseMethod = 'powerCluster'; %
 
 % Timescales
 taus = (4);
@@ -39,45 +34,60 @@ data = fly_data;
 % Output location
 tpm_string = [...
     '_' binariseMethod...
-    'tau_' num2str(tau)...
-    '_' downMethod...
-    '_' num2str(samplesPerState) 'perState'];
+    '_tau' num2str(tau)...
+    '_' downMethod];
 mkdir('tpms', [prefix tpm_string]);
 out_dir = ['tpms/' prefix tpm_string '/'];
 
-% Convert percentile thresholds to actual values
-% Overwrites original threshs vectors
-if strcmp(binariseMethod, 'threshSplit')
-    
-    data = permute(data, [1 3 2 4 5]); % samples x trials x channels x flies x conditions
-    data_dims = size(data);
-    data = reshape(data, [data_dims(1)*data_dims(2) data_dims(3) data_dims(4) data_dims(5)]); % Combine samples and trials
-    
-    dims = size(data);
-    threshs = zeros([length(thresh_ps) dims(2:end)]);
-    
-    for thresh_c = 1 : length(thresh_ps)
-        tic;
-        thresh_p = thresh_ps(thresh_c);
-        disp(thresh_p);
-        thresh = prctile(data, thresh_p, 1);
-        threshs(thresh_c, :, :, :) = thresh;
-        toc
-    end
-    
-    % Add trials dimension
-    threshs = permute(threshs, [1 2 5 3 4]);
-    thresh_values = repmat(threshs, [1 1 size(fly_data, 3) 1 1]);
-    
-    data = reshape(data, data_dims);
-    data = permute(data, [1 3 2 4 5]); % samples x channels x trials x flies x conditions
-    
-else
-    % Thresh values determined when building TPMs
-end
-
 % Get channel sets
 networks = nchoosek((1:size(data, 2)), nChannels);
+
+%% Concatenate trials
+
+data = permute(fly_data, [1 3 2 4 5]);
+dims = size(data);
+data = reshape(data, [dims(1)*dims(2) dims(3:end)]);
+
+% turn trailing dimensions into a single dimension
+dims = size(data);
+data = reshape(data, [dims(1) prod(dims(2:end))]);
+
+%% Compute power spectrum at each time window
+% Assumes 1kHz sampling rate
+
+Fs = 1000;
+winSize = 1000; % size (in samples) of window
+winStep = 1; % step (in number of samples) of window
+
+nWins = size(data, 1) - winSize + 1; % total number of windows
+
+params = struct();
+params.Fs = Fs;
+params.tapers = [2 3];
+params.fpass = [1 100];
+
+% get size of spectrum
+[S, f] = mtspectrumc(data(1:winSize, :), params);
+
+Ss = NaN([size(S) nWins]);
+
+parfor win_c = 1 : nWins
+    disp(win_c);
+    tic;
+    
+    window = (win_c : win_c + winSize - 1);
+    [S, f] = mtspectrumc(data(window, :), params);
+    
+    Ss(:, :, win_c) = S;
+    
+    toc
+end
+
+%% PCA on power spectra
+
+dims = size(Ss);
+[coeff, score, latent, tsquared, explained] = pca(log(reshape(permute(Ss, [3 2 1]), [dims(3)*dims(2) dims(1)])));
+
 
 %% Build TPMs with constant number of samples per source state
 
@@ -140,7 +150,7 @@ for fly = 1 : size(fly_data, 4)
                     
                     % Build TPM
                     try
-                        [tpm, state_counters] = build_tpm_equalStates(data_binarised, step, nValues, samplesPerState);
+                        [tpm, state_counters] = build_tpm(data_binarised, step, nValues);
                     catch ME
                         disp(ME.message);
                         disp(['Failed: ' out_prefix out_suffix]);
@@ -170,7 +180,6 @@ end
 %% Save general parameters
 
 save([out_dir 'params.mat'],...
-    'samplesPerState',...
     'binariseMethod',...
     'binariseParams',...
     'threshs',...

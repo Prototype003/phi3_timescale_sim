@@ -8,7 +8,8 @@ Joins split results
 
 %% Settings
 
-tpm_type = 'split2250_bipolarRerefType1_lineNoiseRemoved_postPuffpreStim_threshSplit_binAverage_100perState';
+tpm_type = 'split2250_bipolarRerefType1_lineNoiseRemoved_postPuffpreStim_threshSplit_tau4_tauStep';
+tau = 4;
 
 %% Setup
 
@@ -72,7 +73,7 @@ for fly = 1 : size(params.thresh_values, 4)
                         '_condition' num2str(condition)...
                         '_trial' num2str(trial)...
                         '_network' num2str(network_c)...
-                        'tau' num2str(1)...
+                        'tau' num2str(tau)...
                         '_thresh' num2str(thresh_c)...
                         ];
                     
@@ -87,9 +88,9 @@ for fly = 1 : size(params.thresh_values, 4)
                     
                     % Place into large data structure
                     phis{1}.phis(network_c, trial, fly, condition, thresh_c) = single(tmp.phi.phi);
-                    phis{1}.state_counters(:, network_c, trial, trial, condition, thresh_c) = int16(tmp.phi.state_counters);
-                    phis{1}.big_mips(:, :, :, network_c, trial, trial, condition, thresh_c) = constellation_parse(tmp.phi.big_mips, concept_list_full);
-                    phis{1}.state_phis(:, network_c, trial, trial, condition, thresh_c) = single(tmp.phi.state_phis);
+                    phis{1}.state_counters(:, network_c, trial, fly, condition, thresh_c) = int16(tmp.phi.state_counters);
+                    phis{1}.big_mips(:, :, :, network_c, trial, fly, condition, thresh_c) = constellation_parse(tmp.phi.big_mips, concept_list_full);
+                    phis{1}.state_phis(:, network_c, trial, fly, condition, thresh_c) = single(tmp.phi.state_phis);
                 end
             end
         end

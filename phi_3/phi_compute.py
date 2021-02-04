@@ -25,11 +25,17 @@ def tar_compute(tpm_file, tpm_dir, tpm_type, results_directory, queue):
 	tpm_formatted = pyphi.convert.state_by_state2state_by_node(tpm) # assumes loaded TPMs are state-by-state
 	
 	# Compute phi
-	out_file = phi_compute(tpm_formatted, state_counters, nValues, results_directory, tpm_file.name)
+	try:
+		out_file = phi_compute(tpm_formatted, state_counters, nValues, results_directory, tpm_file.name)
+	except:
+		print("pyphi error")
 	
 	# Add output to queue
-	queue.put(out_file)
-	print(out_file)
+	try:
+		queue.put(out_file)
+		print(out_file)
+	except:
+		print("error adding file to queue")
 	
 	# Delete extracted file
 	os.remove(tpm_dir+tpm_file.name)
@@ -48,7 +54,7 @@ def phi_compute(tpm, state_counters, nValues, out_dir, out_file):
 	network = pyphi.Network(tpm)
 
 	# Determine number of system elements
-	nChannels = np.shape(tpm)[1]
+	nChannels = np.shape(tpm)[-1]
 	
 	# Determine number of system states
 	n_states = nValues ** nChannels
@@ -63,7 +69,7 @@ def phi_compute(tpm, state_counters, nValues, out_dir, out_file):
 	state_phis = np.zeros((n_states))
 
 	# sys.exit()
-
+	
 	# Calculate all possible phi values (number of phi values is limited by the number of possible states)
 	for state_index in range(0, n_states):
 		#print('State ' + str(state_index))
@@ -154,8 +160,10 @@ if not os.path.exists(results_directory):
 # Loop through TPMs ############################################################################
 
 # Check for tar archive 
-if tarfile.is_tarfile(tpm_dir+tpm_type+'.tar'):
-	tpm_archive = tarfile.open(tpm_dir+tpm_type+'.tar', mode='r')
+#if tarfile.is_tarfile(tpm_dir+tpm_type+'.tar'):
+if tarfile.is_tarfile(tpm_dir+'tpms.tar'):
+	#tpm_archive = tarfile.open(tpm_dir+tpm_type+'.tar', mode='r')
+	tpm_archive = tarfile.open(tpm_dir+'tpms.tar', mode='r')
 	tpms = tpm_archive.getmembers()
 	
 	# Check for previously computed results
@@ -176,7 +184,8 @@ if tarfile.is_tarfile(tpm_dir+tpm_type+'.tar'):
 	for tpm_file in tpms:
 		if tpm_file.name != "params.mat":
 			if not tpm_file.name in done_tpms:
-				job = pool.apply_async(tar_compute, (tpm_file, tpm_dir, tpm_type, results_directory, queue))
+				#job = pool.apply_async(tar_compute, (tpm_file, tpm_dir, tpm_type, results_directory, queue))
+				job = pool.apply_async(tar_compute, (tpm_file, tpm_dir, 'tpms', results_directory, queue))
 				jobs.append(job)
 	
 	# Force wait until all jobs finish
@@ -204,4 +213,7 @@ else:
 				nValues = loaded['nValues'][0][0]
 				tpm_formatted = pyphi.convert.state_by_state2state_by_node(tpm) # assumes loaded TPMs are state-by-state
 				
-				phi_compute(tpm_formatted, state_counters, nValues, results_directory, tpm_file, tpm_type)
+				try:
+					phi_compute(tpm_formatted, state_counters, nValues, results_directory, tpm_file, tpm_type)
+				except:
+					print("pyphi error")

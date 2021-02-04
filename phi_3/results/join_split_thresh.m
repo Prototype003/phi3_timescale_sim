@@ -9,7 +9,8 @@ Joins split results
 %% Settings
 
 tpm_type = 'NLbidirNoInstOrder1Thresh1_nSamples200000_nRuns10_percSplit_binAverage_200perState';
-tpm_type = 'NLbidirNoInstOrder1Thresh0-7SpikeReset_nSamples200000_nRuns10_threshSplit_binAverage_200perState';
+tpm_type = 'NLbidirNoInstOrder1Thresh1SpikeReset_nSamples200000_nRuns10_threshSplit_binAverage_200perState';
+tpm_type = 'NLunidirNoInstOrder1Thresh0-9_nSamples200000_nRuns10_percSplit_binAverage_200perState';
 
 %% Setup
 

@@ -8,15 +8,14 @@ Summary figures
 
 %% Load
 
-tpm_type = 'split2250_bipolarRerefType1_lineNoiseRemoved_postPuffpreStim_threshSplit_binAverage_100perState';
+tpm_type = 'split2250_bipolarRerefType1_lineNoiseRemoved_postPuffpreStim_threshSplit_tau4_tauStep';
 
 load(['results/split/' tpm_type '/joined.mat']);
 params = load(['../tpms/' tpm_type '/params.mat']);
 
 %% Plot phi as a function of threshold value
 
-flies = 1;
-values = phis{1}.phis(:, :, flies, :, :);
+values = phis{1}.phis(:, :, :, :, :);
 
 % Average phi per channel
 dims = size(values);
@@ -38,35 +37,39 @@ for channel = 1 : max(params.networks(:))
 end
 
 % Plot average phi as function of threshold value
+flies = (1:13);
 cond_colours = {'r', 'b'};
 figure;
 for channel = 1 : max(params.networks(:))
     subplot(3, 5, channel);
     
-    for condition = 1 : 1%size(ch_values, 3)
+    for condition = 1 : 2%size(ch_values, 3)
         
-        x = params.thresh_values(:, channel, 1, flies, condition); % Assuming equal thresholds across trials
+        x = mean(params.thresh_values(:, channel, 1, flies, condition), 4); % Assuming equal thresholds across trials
+        xstring = 'thresh (V)';
+        x = params.thresh_ps;
+        xstring = '%tile thresh';
         
         % Plot individual trials
-        y = squeeze(ch_values(channel, :, condition, :));
+        y = squeeze(mean(ch_values(channel, :, flies, condition, :), 3));
         plot(x, y, [cond_colours{condition} '-.']);
         hold on;
         
         % Plot average acros trials
-        y = squeeze(mean(ch_values(channel, :, condition, :), 2));
+        y = squeeze(mean(mean(ch_values(channel, :, flies, condition, :), 2), 3));
         plot(x, y, [cond_colours{condition} '-'], 'LineWidth', 2);
         
     end
     
     title(['ch' num2str(channel)]);
-    xlabel('thresh (V)');
+    xlabel(xstring);
     ylabel('\Phi');
     
     axis tight;
     
     % consistent y-axis across channels
-    range = ch_values;
-    ylim([min(range(:)) max(range(:))]);
+    %range = mean(ch_values, 2);
+    %ylim([min(range(:)) max(range(:))]);
     
 end
 
@@ -91,6 +94,55 @@ title(tpm_type);
 ylabel('\Phi');
 xlabel('thresh value');
 
+%% Plot phi as function of threshold, per fly
 
+values = phis{1}.phis(:, :, :, :, :);
 
+% Average across trials
+values = mean(values, 2);
+%values = values(:, :, :, 1, :) ./ values(:, :, :, 2, :); % wake/anest
 
+cond_colours = {'r', 'b'};
+figure;
+for fly = 1 : size(values, 3)
+    subplot(4, 4, fly);
+    
+    for condition = 1 : size(values, 4)
+        
+        x = params.thresh_ps;
+        xstring = '%tile thresh';
+        
+        % Plot average across channel sets
+        y = squeeze(mean(values(:, 1, fly, condition, :), 1));
+        plot(x, y, [cond_colours{condition} '-'], 'LineWidth', 2);
+        
+        hold on
+        
+        % Plot errorpatch
+        ybar = squeeze(std(values(:, 1, fly, condition, :), [], 1));
+        patch(...
+            [x fliplr(x)],...
+            [y'+ybar' fliplr(y'-ybar')],...
+            cond_colours{condition},...
+            'FaceAlpha', 0.3,...
+            'LineStyle', 'none');
+        
+    end
+    
+    title(['fly' num2str(fly)]);
+    xlabel(xstring);
+    ylabel('\Phi');
+    
+    axis tight;
+    
+end
+
+%% Print
+
+figure_name = 'figS_binThresh_raw';
+
+set(gcf, 'PaperOrientation', 'Landscape');
+
+print(figure_name, '-dsvg', '-painters'); % SVG
+print(figure_name, '-dpdf', '-painters', '-bestfit'); % PDF
+print(figure_name, '-dpng'); % PNG

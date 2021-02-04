@@ -8,30 +8,47 @@ Joins split results
 
 %% Settings
 
-tpm_type = 'bidirNoInstOrder1_nSamples200000_nRuns10_medianSplit_binAverage';
+tpm_type = 'split13500_bPlrRerefTyp1_lineNoiseRemoved_postPuffPreStim_medianSplit_tauSearch_tauStep';
+%tpm_type = 'split13500_bPlrRerefTyp1_lineNoiseRemoved_postPuffPreStim_medianSplit_tauSearch_binAverage';
+source_data = '../../../flies/PHDCOHEND-Q1326/postPuffPreStim/split13500_bPlrRerefTyp1_lineNoiseRemoved_postPuffPreStim.mat';
+
+tpm_type = 'forwardNLbidirNoInstOrder1Thresh0-9Lag9-11_nSamples200000_nRuns10_medianSplit_tauSearch_tauStep';
+source_data = '../../sim_data/forwardNLbidirNoInstOrder1Thresh0-9Lag9-11_nSamples200000_nRuns10';
+
+tpm_type = '3chforwardNLbidirNoInstOrder1Thresh0-9Lag9-11_nSamples200000_nRuns10_medianSplit_tauSearch_tauStep_nCh3';
+source_data = '../../sim_data/3chforwardNLbidirNoInstOrder1Thresh0-9Lag9-11_nSamples200000_nRuns10';
 
 %% Setup
 
 % Load parameters
 params = load(['../../tpms/' tpm_type '/params.mat']);
 
+ref = load(source_data);
+
+% Make data format consistent with fly data (if necessary)
+if ~strcmp(tpm_type(1:5), 'split')
+    ref.fly_data = ref.data;
+end
+
 % Source directory
 source_dir = ['split/' tpm_type '/'];
 
 %% Setup
 
-nChannels = 2;
-runs = (1:params.nRuns);
-taus = params.taus;
+dims = size(ref.fly_data);
+if length(dims) < 5
+    dims = cat(2, dims, ones(5 - length(dims)));
+end
+dims = [dims(3:5) length(params.taus)]; % trials x flies x conditions x taus
 
-channels = 2;
-trials = 1;
-conditions = 1;
-
-channel_sets = nchoosek((1:channels), nChannels);
+% Full dimensions
+channel_sets = params.networks;
+nChannels = size(channel_sets, 2);
 nStates = 2^nChannels;
-dims_state_ind = [size(channel_sets, 1) length(trials), length(runs), length(conditions), length(taus)];
+dims_state_ind = [size(channel_sets, 1) dims];
 dims_state_dep = [nStates dims_state_ind];
+
+% List of possible concepts
 nConcepts = 0; % power-set of nChannels
 concept_list_full = cell(0); concept_list_counter = 1;
 for concept_order = 1 : nChannels
@@ -51,31 +68,33 @@ phis = cell(1);
 phis{1} = struct();
 phis{1}.nChannels = int8(nChannels);
 phis{1}.channel_sets = int8(channel_sets);
-phis{1}.taus = taus;
+phis{1}.params = params;
 
 phis{1}.phis = single(zeros(dims_state_ind));
 phis{1}.big_mips = cell(dims_state_dep);
 phis{1}.big_mips = single(zeros([nStates 2 nConcepts dims_state_ind]));
 phis{1}.state_counters = int16(zeros(dims_state_dep));
 phis{1}.state_phis = single(zeros(dims_state_dep));
-for run = runs
-    disp(['run' num2str(run)]);
+
+for fly = 1 : size(ref.fly_data, 4)
     tic;
-    for condition = conditions
-        for tau_counter = 1 : length(taus)
-            tau = taus(tau_counter);
-            for set_counter = 1 : size(channel_sets, 1)
-                for trial = trials
+    for condition = 1 : size(ref.fly_data, 5)
+        for trial = 1 : size(ref.fly_data, 3)
+            for network_c = 1 : size(params.networks, 1)
+                for tau_c = 1 : length(params.taus)
                     
                     % File name
                     source_file = [...
-                        'tau' num2str(tau)...
-                        '_run' num2str(run)...
+                        'fly' num2str(fly)...
+                        '_condition' num2str(condition)...
+                        '_trial' num2str(trial)...
+                        '_network' num2str(network_c)...
+                        'tau' num2str(tau_c)...
                         ];
                     
                     try
                         % Load file
-                        tmp = load([source_dir source_file]);
+                        tmp = load([source_dir source_file '.mat']);
                     catch ME
                         disp(ME.message);
                         disp(['Failed file: ' source_file]);
@@ -83,11 +102,10 @@ for run = runs
                     end
                     
                     % Place into large data structure
-                    phis{1}.phis(set_counter, trial, run, condition, tau_counter) = single(tmp.phi.phi);
-                    phis{1}.state_counters(:, set_counter, trial, run, condition, tau_counter) = int16(tmp.phi.state_counters);
-                    phis{1}.big_mips(:, :, :, set_counter, trial, run, condition, tau_counter) = constellation_parse(tmp.phi.big_mips, concept_list_full);
-                    phis{1}.state_phis(:, set_counter, trial, run, condition, tau_counter) = single(tmp.phi.state_phis);
-                    
+                    phis{1}.phis(network_c, trial, fly, condition, tau_c) = single(tmp.phi.phi);
+                    phis{1}.state_counters(:, network_c, trial, fly, condition, tau_c) = int16(tmp.phi.state_counters);
+                    phis{1}.big_mips(:, :, :, network_c, trial, fly, condition, tau_c) = constellation_parse(tmp.phi.big_mips, concept_list_full);
+                    phis{1}.state_phis(:, network_c, trial, fly, condition, tau_c) = single(tmp.phi.state_phis);
                 end
             end
         end
@@ -97,7 +115,7 @@ end
 
 %% Save
 
-save([source_dir 'joined.mat'], 'phis', '-v7.3');
+save([source_dir 'joined.mat'], 'phis', '-v7.3', '-nocompression');
 
 %% Parse constellation
 

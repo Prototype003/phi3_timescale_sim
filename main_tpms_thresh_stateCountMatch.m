@@ -10,11 +10,11 @@ Builds TPMs
 samplesPerState = 200;
 
 % Binarise method
-binariseMethod = 'threshSplit';
+binariseMethod = 'percSplit'; % 'percSplit' or 'threshSplit'
 
 % Binarise parameters
 threshs = (10:2:90);
-threshs = (10:2:90);
+threshs = (40:10:60);
 binariseParams = struct();
 
 % Timescales
@@ -26,8 +26,7 @@ downMethod = 'binAverage';
 
 %% Setup
 
-prefix = 'NLbidirNoInstOrder1Thresh0-6SpikeReset_nSamples200000_nRuns10';
-
+prefix = 'NLbidirNoInstOrder1Thresh0-9_nSamples200000_nRuns10';
 % Source data
 source_dir = 'sim_data/';
 source_file = [prefix '.mat'];
