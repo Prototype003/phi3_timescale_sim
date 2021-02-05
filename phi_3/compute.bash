@@ -43,17 +43,17 @@
 # Job script
 
 # Compute TPMs
-#module load matlab/r2019a
-#pushd ../
-#matlab -nodisplay -nodesktop -r "main_tpms_tau_multipleSystems; exit"
-#./tpm_tar.bash 3chMotifsNLThresh0_9Lag9-11_nSamples200000_nRuns10_medianSplit_tauSearch_nCh3
-#cd tpms/3chMotifsNLThresh0_9Lag9-11_nSamples200000_nRuns10_medianSplit_tauSearch_nCh3/
-#mv 3chMotifsNLThresh0_9Lag9-11_nSamples200000_nRuns10_medianSplit_tauSearch_nCh3.tar tpms.tar
-#cd ../
-#popd
+module load matlab/r2019a
+pushd ../
+matlab -nodisplay -nodesktop -r "main_tpms_tau_multipleSystems; exit"
+./tpm_tar.bash 3chMotifsNLThresh0_9Lag9-11_nSamples200000_nRuns10_medianSplit_tauSearch_nCh3
+cd tpms/3chMotifsNLThresh0_9Lag9-11_nSamples200000_nRuns10_medianSplit_tauSearch_nCh3/
+mv 3chMotifsNLThresh0_9Lag9-11_nSamples200000_nRuns10_medianSplit_tauSearch_nCh3.tar tpms.tar
+cd ../
+popd
 
 # Compute phis
-module load python/3.6.2
-source ../pyphi_environment/bin/activate
-time python phi_compute.py 3chMotifsNLThresh0_9Lag9-11_nSamples200000_nRuns10_medianSplit_tauSearch_nCh3
-deactivate
+#module load python/3.6.2
+#source ../pyphi_environment/bin/activate
+#time python phi_compute.py 3chMotifsNLThresh0_9Lag9-11_nSamples200000_nRuns10_medianSplit_tauSearch_nCh3
+#deactivate

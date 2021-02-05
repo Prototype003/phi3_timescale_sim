@@ -6,7 +6,7 @@ Builds TPMs
 
 %% Settings
 
-nChannels = 3;
+nChannels = 2;
 
 % timescales
 taus = unique(round(2.^(0:0.25:15)));
