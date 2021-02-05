@@ -53,7 +53,6 @@
 #popd
 
 # Compute phis
-module load matlab/r2019a
 module load python/3.6.2
 source ../pyphi_environment/bin/activate
 time python phi_compute.py 3chMotifsNLThresh0_9Lag9-11_nSamples200000_nRuns10_medianSplit_tauSearch_nCh3
