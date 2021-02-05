@@ -47,10 +47,10 @@ module load matlab/r2019a
 pushd ../
 matlab -nodisplay -nodesktop -r "main_tpms_tau_multipleSystems; exit"
 echo "tpms built, now tarring"
-./tpm_tar.bash 3chMotifsNLThresh0_9Lag9-11_nSamples200000_nRuns10_medianSplit_tauSearch_nCh3
+./tpm_tar.bash 3chMotifsNLThresh0_9Lag9-11_nSamples200000_nRuns10_medianSplit_tauSearch_nCh2
 echo "tpms tarred, now renaming tar"
-cd tpms/3chMotifsNLThresh0_9Lag9-11_nSamples200000_nRuns10_medianSplit_tauSearch_nCh3/
-mv 3chMotifsNLThresh0_9Lag9-11_nSamples200000_nRuns10_medianSplit_tauSearch_nCh3.tar tpms.tar
+cd tpms/3chMotifsNLThresh0_9Lag9-11_nSamples200000_nRuns10_medianSplit_tauSearch_nCh2/
+mv 3chMotifsNLThresh0_9Lag9-11_nSamples200000_nRuns10_medianSplit_tauSearch_nCh2.tar tpms.tar
 echo "tar renamed"
 cd ../
 popd
