@@ -47,7 +47,7 @@ out_dir = ['tpms/' prefix tpm_string '/'];
 % Create local cluster
 pc = parcluster('local');
 % Set JobStorageLocation to specific directory for this particular job
-pc.JobStorageLocation = strcat('matlab_pct/', getenv('SLURM_JOB_ID'));
+%pc.JobStorageLocation = strcat('matlab_pct/', getenv('SLURM_JOB_ID'));
 % Start pool
 parpool(pc, 16);
 
