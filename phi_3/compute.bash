@@ -43,14 +43,14 @@
 # Job script
 
 # Compute TPMs
-module load matlab/r2019a
-pushd ../
-matlab -nodisplay -nodesktop -r "main_tpms_tau_multipleSystems; exit"
-./tpm_tar.bash 3chMotifsNLThresh0_9Lag9-11_nSamples200000_nRuns10_medianSplit_tauSearch_nCh3
-cd tpms/3chMotifsNLThresh0_9Lag9-11_nSamples200000_nRuns10_medianSplit_tauSearch_nCh3/
-mv 3chMotifsNLThresh0_9Lag9-11_nSamples200000_nRuns10_medianSplit_tauSearch_nCh3.tar tpms.tar
-cd ../
-popd
+#module load matlab/r2019a
+#pushd ../
+#matlab -nodisplay -nodesktop -r "main_tpms_tau_multipleSystems; exit"
+#./tpm_tar.bash 3chMotifsNLThresh0_9Lag9-11_nSamples200000_nRuns10_medianSplit_tauSearch_nCh3
+#cd tpms/3chMotifsNLThresh0_9Lag9-11_nSamples200000_nRuns10_medianSplit_tauSearch_nCh3/
+#mv 3chMotifsNLThresh0_9Lag9-11_nSamples200000_nRuns10_medianSplit_tauSearch_nCh3.tar tpms.tar
+#cd ../
+#popd
 
 # Compute phis
 module load matlab/r2019a
