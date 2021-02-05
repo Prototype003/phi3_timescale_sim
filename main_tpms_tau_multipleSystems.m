@@ -42,6 +42,15 @@ tpm_string = [...
 mkdir('tpms', [prefix tpm_string]);
 out_dir = ['tpms/' prefix tpm_string '/'];
 
+%% Parallel pool setup for slurm
+
+% Create local cluster
+pc = parcluster('local');
+% Set JobStorageLocation to specific directory for this particular job
+pc.JobStorageLocation = strcat('matlab_pct/', getenv('SLURM_JOB_ID'));
+% Start pool
+parpool(pc, 16);
+
 %% Build TPMs with constant number of samples per source state
 
 for d = 1 : length(downMethods)
