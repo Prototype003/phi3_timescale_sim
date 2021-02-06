@@ -4,7 +4,7 @@
 
 pushd tpms/$1
 find -type f -name '*.mat' > ls_out
-tar -cvf -T ls_out $1.tar
+tar -cv -T ls_out -f $1.tar
 
 # remove files
 mv $1.tar ../ # Move tar out of directory
