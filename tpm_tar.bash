@@ -3,7 +3,8 @@
 # $1 is tpm type
 
 pushd tpms/$1
-tar -cvf $1.tar *
+ls *.mat > ls_out
+tar -cvf -T ls_out $1.tar
 
 # remove files
 mv $1.tar ../ # Move tar out of directory
