@@ -43,20 +43,20 @@
 # Job script
 
 # Compute TPMs
-module load matlab/r2019a
-pushd ../
-matlab -nodisplay -nodesktop -r "main_tpms_tau_multipleSystems; exit"
-echo "tpms built, now tarring"
-./tpm_tar.bash 3chMotifsNLThresh0_9Lag9-11_nSamples200000_nRuns10_medianSplit_tauSearch_nCh2
-echo "tpms tarred, now renaming tar"
-cd tpms/3chMotifsNLThresh0_9Lag9-11_nSamples200000_nRuns10_medianSplit_tauSearch_nCh2/
-mv 3chMotifsNLThresh0_9Lag9-11_nSamples200000_nRuns10_medianSplit_tauSearch_nCh2.tar tpms.tar
-echo "tar renamed"
-cd ../
-popd
+# module load matlab/r2019a
+# pushd ../
+# matlab -nodisplay -nodesktop -r "main_tpms_tau_multipleSystems; exit"
+# echo "tpms built, now tarring"
+# ./tpm_tar.bash 3chMotifsNLThresh0_9Lag9-11_nSamples200000_nRuns10_medianSplit_tauSearch_nCh2
+# echo "tpms tarred, now renaming tar"
+# cd tpms/3chMotifsNLThresh0_9Lag9-11_nSamples200000_nRuns10_medianSplit_tauSearch_nCh2/
+# mv 3chMotifsNLThresh0_9Lag9-11_nSamples200000_nRuns10_medianSplit_tauSearch_nCh2.tar tpms.tar
+# echo "tar renamed"
+# cd ../
+# popd
 
 # Compute phis
-#module load python/3.6.2
-#source ../pyphi_environment/bin/activate
-#time python phi_compute.py 3chMotifsNLThresh0_9Lag9-11_nSamples200000_nRuns10_medianSplit_tauSearch_nCh3
-#deactivate
+module load python/3.6.2
+source ../pyphi_environment/bin/activate
+time python phi_compute.py split2250_bipolarRerefType1_lineNoiseRemoved_postPuffpreStim_medianSplit_tauSearch_binAverage
+deactivate
