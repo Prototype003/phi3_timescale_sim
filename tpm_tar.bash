@@ -3,7 +3,7 @@
 # $1 is tpm type
 
 pushd tpms/$1
-find -type f -name '*.mat' > ls_out
+find -type f -name '*.mat' | sed 's|^./||' > ls_out
 tar -cv -T ls_out -f $1.tar
 
 # remove files
