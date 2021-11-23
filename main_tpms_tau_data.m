@@ -11,7 +11,6 @@ nChannels = 2;
 % timescales
 taus = 2.^(0:10);
 taus = unique(round(2.^(0:0.5:10)));
-taus = taus(end);
 
 % Binarise method
 binariseMethod = 'medianSplit';
