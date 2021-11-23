@@ -53,11 +53,14 @@ networks = nchoosek((1:size(data, 2)), nChannels);
 
 % Create local cluster
 pc = parcluster('local');
+pc.NumWorkers = 24;
 % Set JobStorageLocation to specific directory for this particular job
 %pc.JobStorageLocation = strcat('matlab_pct/', getenv('SLURM_JOB_ID'));
-% Start pool
-parpool(pc, 24);
-%parpool(pc, 4); % thinkpad settings
+parpool(pc, 24); % start pool
+
+% thinkpad settings
+%pc.NumWorkers = 4;
+%parpool(pc, 4);
 
 %% Build TPMs with constant number of samples per source state
 
