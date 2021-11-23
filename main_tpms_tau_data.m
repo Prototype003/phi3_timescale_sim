@@ -53,10 +53,10 @@ networks = nchoosek((1:size(data, 2)), nChannels);
 
 % Create local cluster
 pc = parcluster('local');
-pc.NumWorkers = 24;
+%pc.NumWorkers = 24;
 % Set JobStorageLocation to specific directory for this particular job
 %pc.JobStorageLocation = strcat('matlab_pct/', getenv('SLURM_JOB_ID'));
-parpool(pc, 24); % start pool
+%parpool(pc, 24); % start pool
 
 % thinkpad settings
 %pc.NumWorkers = 4;
