@@ -12,11 +12,17 @@ tpm_type = 'split13500_bPlrRerefTyp1_lineNoiseRemoved_postPuffPreStim_medianSpli
 %tpm_type = 'split13500_bPlrRerefTyp1_lineNoiseRemoved_postPuffPreStim_medianSplit_tauSearch_binAverage';
 source_data = '../../../flies/PHDCOHEND-Q1326/postPuffPreStim/split13500_bPlrRerefTyp1_lineNoiseRemoved_postPuffPreStim.mat';
 
-tpm_type = 'forwardNLbidirNoInstOrder1Thresh0-9Lag9-11_nSamples200000_nRuns10_medianSplit_tauSearch_tauStep';
-source_data = '../../sim_data/forwardNLbidirNoInstOrder1Thresh0-9Lag9-11_nSamples200000_nRuns10';
+%tpm_type = 'NLbidirNoInstOrder1Thresh0-9Lag10_nSamples200000_nRuns10_medianSplit_tauSearch_tauStep';
+%source_data = '../../sim_data/NLbidirNoInstOrder1Thresh0-9Lag10_nSamples200000_nRuns10';
 
-tpm_type = '3chforwardNLbidirNoInstOrder1Thresh0-9Lag9-11_nSamples200000_nRuns10_medianSplit_tauSearch_tauStep_nCh3';
-source_data = '../../sim_data/3chforwardNLbidirNoInstOrder1Thresh0-9Lag9-11_nSamples200000_nRuns10';
+%tpm_type = 'forwardNLbidirNoInstOrder1Thresh0-9Lag9-11_nSamples200000_nRuns10_medianSplit_tauSearch_tauStep';
+%source_data = '../../sim_data/forwardNLbidirNoInstOrder1Thresh0-9Lag9-11_nSamples200000_nRuns10';
+
+%tpm_type = '3chforwardNLbidirNoInstOrder1Thresh0-9Lag9-11_nSamples200000_nRuns10_medianSplit_tauSearch_tauStep_nCh3';
+%source_data = '../../sim_data/3chforwardNLbidirNoInstOrder1Thresh0-9Lag9-11_nSamples200000_nRuns10';
+
+tpm_type = 'split2250_bipolarRerefType1_lineNoiseRemoved_postPuffpreStim_medianSplit_tauSearch_binAverage';
+source_data = '../../../fly_phi/bin/workspace_results/split2250_bipolarRerefType1_lineNoiseRemoved_postPuffpreStim';
 
 %% Setup
 
@@ -70,11 +76,11 @@ phis{1}.nChannels = int8(nChannels);
 phis{1}.channel_sets = int8(channel_sets);
 phis{1}.params = params;
 
-phis{1}.phis = single(zeros(dims_state_ind));
+phis{1}.phis = single(nan(dims_state_ind));
 phis{1}.big_mips = cell(dims_state_dep);
-phis{1}.big_mips = single(zeros([nStates 2 nConcepts dims_state_ind]));
-phis{1}.state_counters = int16(zeros(dims_state_dep));
-phis{1}.state_phis = single(zeros(dims_state_dep));
+phis{1}.big_mips = single(nan([nStates 2 nConcepts dims_state_ind]));
+phis{1}.state_counters = int16(nan(dims_state_dep));
+phis{1}.state_phis = single(nan(dims_state_dep));
 
 for fly = 1 : size(ref.fly_data, 4)
     tic;
