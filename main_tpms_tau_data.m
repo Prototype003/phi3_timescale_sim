@@ -10,6 +10,8 @@ nChannels = 2;
 
 % timescales
 taus = 2.^(0:10);
+taus = unique(round(2.^(0:0.5:10)));
+taus = taus(end);
 
 % Binarise method
 binariseMethod = 'medianSplit';
@@ -26,10 +28,11 @@ downMethod = 'binAverage';
 %% Setup
 
 prefix = 'split13500_bPlrRerefTyp1_lineNoiseRemoved_postPuffPreStim';
+prefix = 'split2250_bipolarRerefType1_lineNoiseRemoved_postPuffpreStim';
 
 % Source data
-source_dir = '../fly_phi/bin/workspace_results/';
 source_dir = '../flies/PHDCOHEND-Q1326/postPuffPreStim/';
+source_dir = '../fly_phi/bin/workspace_results/';
 source_file = [prefix '.mat'];
 load([source_dir source_file]);
 
@@ -46,12 +49,23 @@ out_dir = ['tpms/' prefix tpm_string '/'];
 % Get channel sets
 networks = nchoosek((1:size(data, 2)), nChannels);
 
+%% Parallel pool setup for slurm
+
+% Create local cluster
+pc = parcluster('local');
+% Set JobStorageLocation to specific directory for this particular job
+%pc.JobStorageLocation = strcat('matlab_pct/', getenv('SLURM_JOB_ID'));
+% Start pool
+parpool(pc, 24);
+%parpool(pc, 4); % thinkpad settings
+
 %% Build TPMs with constant number of samples per source state
 
 for fly = 1 : size(fly_data, 4)
     for condition = 1 : size(fly_data, 5)
-        for trial = 1 : size(fly_data, 3)
+        parfor trial = 1 : size(fly_data, 3)
             disp(['f' num2str(fly) 'c' num2str(condition) 't' num2str(trial)]);
+            drawnow
             tic;
             for network_c = 1 : size(networks, 1)
                 network = networks(network_c, :);
@@ -76,13 +90,13 @@ for fly = 1 : size(fly_data, 4)
                             data_binarised = binarise_median(net_data);
                             nValues = 2;
                         elseif strcmp(binariseMethod, 'threshSplit')
-                            data_binarised = zeros(size(net_data));
-                            ch_threshs = thresh_values(thresh_c, network, trial, fly, condition);
-                            for ch = 1 : size(net_data, 2)
-                                binariseParams.thresh = ch_threshs(1, ch);
-                                data_binarised(:, ch) = binarise_threshValue(net_data(:, ch), binariseParams);
-                            end
-                            nValues = 2;
+%                             data_binarised = zeros(size(net_data));
+%                             ch_threshs = thresh_values(thresh_c, network, trial, fly, condition);
+%                             for ch = 1 : size(net_data, 2)
+%                                 binariseParams.thresh = ch_threshs(1, ch);
+%                                 data_binarised(:, ch) = binarise_threshValue(net_data(:, ch), binariseParams);
+%                             end
+%                             nValues = 2;
                         end
                         
                         % Build TPM
@@ -109,20 +123,33 @@ for fly = 1 : size(fly_data, 4)
                         end
                     end
                     
+%                     % Save TPM
+%                     save([out_dir out_prefix out_suffix],...
+%                         'tpm',...
+%                         'state_counters',...
+%                         'nValues',...
+%                         'fly',...
+%                         'condition',...
+%                         'trial',...
+%                         'network',...
+%                         'downMethod');
+                    
                     % Save TPM
-                    save([out_dir out_prefix out_suffix],...
-                        'tpm',...
-                        'state_counters',...
-                        'nValues',...
-                        'fly',...
-                        'condition',...
-                        'trial',...
-                        'network');
+                    main_tpms_tau_multipleSystems_parsave([out_dir out_prefix out_suffix],...
+                        tpm,...
+                        state_counters,...
+                        nValues,...
+                        fly,...
+                        condition,...
+                        trial,...
+                        network,...
+                        downMethod);
                     
                 end
                 
             end
             toc
+            drawnow
         end
     end
 end
