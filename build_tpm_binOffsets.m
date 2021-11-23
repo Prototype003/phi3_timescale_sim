@@ -30,9 +30,11 @@ for offset = 1 : tau
     
     % Downsample by averaging
     %cum = cumsum(fly_data_offset, 1);
-    fly_data_resampled = cum(offset:tau:end, :) / tau;
-    fly_data_resampled = fly_data_resampled(2:end, :) - fly_data_resampled(1:end-1, :);
-    fly_data_offset = fly_data_resampled;
+    %fly_data_resampled = cum(offset:tau:end, :) / tau;
+    %fly_data_resampled = fly_data_resampled(2:end, :) - fly_data_resampled(1:end-1, :);
+    %fly_data_offset = fly_data_resampled;
+    
+    fly_data_offset = downsample_mean(fly_data, tau, offset-1);
     
     % Binarise
     if strcmp(binarise_method, 'median')

@@ -31,5 +31,8 @@
 # TPM folders
 tpms/*/
 
+# Results folders
+phi_3/results/split/*/
+
 # Pyphi environment
 bin/pyphi_environment/
